@@ -1,0 +1,8 @@
+name: Amamon UI
+
+on:
+ push:
+   branches:
+    - main
+
+
