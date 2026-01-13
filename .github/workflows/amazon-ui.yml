@@ -21,37 +21,32 @@ jobs:
           aws-region: ap-south-1
 
       - name: Login to Amazon ECR
-        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
-        run: |
-          docker build -t amazon-ui .
+        run: docker build -t amazon-ui .
 
       - name: Tag Docker image
-        run: |
-          docker tag amazon-ui:latest ${{ secrets.ECR_URI }}:latest
+        run: docker tag amazon-ui:latest ${{ secrets.ECR_URI }}:latest
 
       - name: Push image to Amazon ECR
-        run: |
-          docker push ${{ secrets.ECR_URI }}:latest
+        run: docker push ${{ secrets.ECR_URI }}:latest
 
       - name: Download ECS task definition
-    run: |
-     aws ecs describe-task-definition \
-      --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
-      --query taskDefinition \
-      | jq 'del(
-          .taskDefinitionArn,
-          .revision,
-          .status,
-          .requiresAttributes,
-          .compatibilities,
-          .registeredAt,
-          .registeredBy,
-          .enableFaultInjection
-        )' > task-definition.json
-
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
+            --query taskDefinition \
+            | jq 'del(
+                .taskDefinitionArn,
+                .revision,
+                .status,
+                .requiresAttributes,
+                .compatibilities,
+                .registeredAt,
+                .registeredBy,
+                .enableFaultInjection
+              )' > task-definition.json
 
       - name: Render new task definition
         uses: aws-actions/amazon-ecs-render-task-definition@v1
