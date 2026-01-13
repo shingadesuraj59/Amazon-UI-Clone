@@ -36,13 +36,22 @@ jobs:
         run: |
           docker push ${{ secrets.ECR_URI }}:latest
 
-
       - name: Download ECS task definition
-        run: |
-          aws ecs describe-task-definition \
-            --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
-            --query taskDefinition \
-            > task-definition.json
+    run: |
+     aws ecs describe-task-definition \
+      --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
+      --query taskDefinition \
+      | jq 'del(
+          .taskDefinitionArn,
+          .revision,
+          .status,
+          .requiresAttributes,
+          .compatibilities,
+          .registeredAt,
+          .registeredBy,
+          .enableFaultInjection
+        )' > task-definition.json
+
 
       - name: Render new task definition
         uses: aws-actions/amazon-ecs-render-task-definition@v1
